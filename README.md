@@ -44,7 +44,8 @@ python -m PyInstaller Componentes_Conexas.spec --distpath .
 
 ## Colaboradores
 
-- [spygil312](https://github.com/spygil312)
-- [ExodoGM](https://github.com/ExodoGM)
-
-
+- Giliam de la Rosa Toro
+- Maricielo Figueroa
+- Shaun Ponte
+- Jose Ramirez
+- Rut Rodríguez
