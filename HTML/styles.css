@@ -19,25 +19,9 @@
   --ok:  #1f9d6c;
   --err: #e8445f;
 
-  color-scheme: light;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-:root[data-theme="dark"] {
-  --bg:  #17122a;
-  --bar: #211a3a;
-  --card: #2a2147;
-  --bd:  #3d3263;
-  --tx:  #efe8ff;
-  --mut: #a99bd3;
-  --blk: #3d3263;
-  --lav: #7e68c4;
-  --ok:  #4fe0a8;
-  --err: #ff7f96;
-  --sec: #43386d;
-  color-scheme: dark;
 }
 
 html {
@@ -53,57 +37,6 @@ body {
   background: var(--bg);
   color: var(--tx);
   font: 15px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif;
-}
-
-header {
-  position: relative;
-}
-
-.theme-toggle {
-  position: absolute;
-  top: 0;
-  right: 0;
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  padding: 8px;
-  border: 1px solid var(--bd);
-  border-radius: 12px;
-  background: var(--bar);
-  color: var(--tx);
-  cursor: pointer;
-}
-
-.theme-toggle:hover {
-  background: var(--card);
-}
-
-.theme-toggle:focus-visible {
-  outline: 3px solid var(--azu);
-  outline-offset: 2px;
-}
-
-.theme-icon {
-  width: 20px;
-  height: 20px;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.8;
-}
-
-.theme-icon-moon {
-  display: none;
-}
-
-:root[data-theme="dark"] .theme-icon-sun {
-  display: none;
-}
-
-:root[data-theme="dark"] .theme-icon-moon {
-  display: block;
 }
 
 .wrap {
@@ -412,35 +345,6 @@ button.cell.d:not(.on) {
   max-width: 100%;
 }
 
-.graph-editor {
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  align-items: center;
-  gap: 24px;
-  min-height: 0;
-  flex: 1;
-}
-
-#work:has(.graph-editor) {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.graph-editor .graph-matrix {
-  justify-self: center;
-}
-
-.graph-editor #gv {
-  width: 100%;
-  min-width: 0;
-}
-
-.graph-confirm {
-  margin-top: auto;
-  padding-top: 20px;
-}
-
 /* GRAFO */
 svg text {
   font: 600 13px "Segoe UI", system-ui, sans-serif;
@@ -551,19 +455,5 @@ svg text {
     flex: none;
     height: 220px;
     flex-basis: 220px;
-  }
-
-  .graph-editor #gv {
-    max-width: 100%;
-  }
-
-  .graph-confirm {
-    margin-top: 16px;
-  }
-}
-
-@media (max-width: 1100px) {
-  .graph-editor {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
