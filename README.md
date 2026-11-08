@@ -41,11 +41,3 @@ Para reconstruir el ejecutable, instala PyInstaller y, desde esa misma carpeta, 
 python -m pip install pyinstaller
 python -m PyInstaller Componentes_Conexas.spec --distpath .
 ```
-
-## Colaboradores
-
-- Giliam de la Rosa Toro
-- Maricielo Figueroa
-- Shaun Ponte
-- Jose Ramirez
-- Rut Rodríguez
