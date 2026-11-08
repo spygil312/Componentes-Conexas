@@ -345,6 +345,35 @@ button.cell.d:not(.on) {
   max-width: 100%;
 }
 
+.graph-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: 24px;
+  min-height: 0;
+  flex: 1;
+}
+
+#work:has(.graph-editor) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.graph-editor .graph-matrix {
+  justify-self: center;
+}
+
+.graph-editor #gv {
+  width: 100%;
+  min-width: 0;
+}
+
+.graph-confirm {
+  margin-top: auto;
+  padding-top: 20px;
+}
+
 /* GRAFO */
 svg text {
   font: 600 13px "Segoe UI", system-ui, sans-serif;
@@ -455,5 +484,19 @@ svg text {
     flex: none;
     height: 220px;
     flex-basis: 220px;
+  }
+
+  .graph-editor #gv {
+    max-width: 100%;
+  }
+
+  .graph-confirm {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .graph-editor {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
