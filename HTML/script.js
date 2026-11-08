@@ -22,34 +22,6 @@ let S = { n: null, tipo: null, M: null, paso: "nodos", res: null, sub: 0, pos: n
 const $ = id => document.getElementById(id);
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 
-function initTheme() {
-  const root = document.documentElement, button = $("themeToggle");
-  let theme = "light";
-  try {
-    const savedTheme = localStorage.getItem("componentes-conexas-theme");
-    if (savedTheme === "light" || savedTheme === "dark") theme = savedTheme;
-  } catch (error) {
-    console.warn("No se pudo leer la preferencia de tema guardada.", error);
-  }
-  const applyTheme = () => {
-    const nextTheme = theme === "light" ? "oscuro" : "claro";
-    root.dataset.theme = theme;
-    button.setAttribute("aria-label", `Cambiar a modo ${nextTheme}`);
-    button.title = `Cambiar a modo ${nextTheme}`;
-    button.setAttribute("aria-pressed", String(theme === "dark"));
-  };
-  applyTheme();
-  button.addEventListener("click", () => {
-    theme = theme === "light" ? "dark" : "light";
-    applyTheme();
-    try {
-      localStorage.setItem("componentes-conexas-theme", theme);
-    } catch (error) {
-      console.warn("No se pudo guardar la preferencia de tema.", error);
-    }
-  });
-}
-
 /* ---------- logica ---------- */
 const vacia = n => Array.from({ length: n }, () => Array(n).fill(0));
 function aleatorio(n) {
@@ -230,5 +202,4 @@ function vResultado() {
   titulo("⑥ RESULTADO FINAL"); log(`Proceso finalizado. Se encontraron ${r.comps.length} componente(s) conexa(s).`, "ok");
 }
 
-initTheme();
 go("nodos"); log("Bienvenido. Empieza eligiendo el número de nodos.", "m");
