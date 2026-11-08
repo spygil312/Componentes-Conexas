@@ -22,6 +22,34 @@ let S = { n: null, tipo: null, M: null, paso: "nodos", res: null, sub: 0, pos: n
 const $ = id => document.getElementById(id);
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 
+function initTheme() {
+  const root = document.documentElement, button = $("themeToggle");
+  let theme = "light";
+  try {
+    const savedTheme = localStorage.getItem("componentes-conexas-theme");
+    if (savedTheme === "light" || savedTheme === "dark") theme = savedTheme;
+  } catch (error) {
+    console.warn("No se pudo leer la preferencia de tema guardada.", error);
+  }
+  const applyTheme = () => {
+    const nextTheme = theme === "light" ? "oscuro" : "claro";
+    root.dataset.theme = theme;
+    button.setAttribute("aria-label", `Cambiar a modo ${nextTheme}`);
+    button.title = `Cambiar a modo ${nextTheme}`;
+    button.setAttribute("aria-pressed", String(theme === "dark"));
+  };
+  applyTheme();
+  button.addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    applyTheme();
+    try {
+      localStorage.setItem("componentes-conexas-theme", theme);
+    } catch (error) {
+      console.warn("No se pudo guardar la preferencia de tema.", error);
+    }
+  });
+}
+
 /* ---------- logica ---------- */
 const vacia = n => Array.from({ length: n }, () => Array(n).fill(0));
 function aleatorio(n) {
@@ -161,10 +189,10 @@ function vGenerar() {
   titulo("GRAFO MANUAL INTERACTIVO"); log("Haz clic en cualquier celda para activar/desactivar conexiones (Origen → Destino).", "m");
   W("③ Conexiones del grafo", "Fila = nodo origen · Columna = nodo destino. Haz clic en una celda para cambiarla.");
   const n = S.n, s = n > 8 ? 24 : 30;
-  let h = `<div class="row"><div class="scroll"><div class="cap">Matriz interactiva</div><div class="mx" style="--c:${s}px;grid-template-columns:repeat(${n + 1},var(--c))"><i class="h">O\\D</i>`;
+  let h = `<div class="graph-editor"><div class="scroll graph-matrix"><div class="cap">Matriz interactiva</div><div class="mx" style="--c:${s}px;grid-template-columns:repeat(${n + 1},var(--c))"><i class="h">O\\D</i>`;
   for (let j = 0; j < n; j++)h += `<i class="h">${j + 1}</i>`;
   for (let i = 0; i < n; i++) { h += `<i class="h">${i + 1}</i>`; for (let j = 0; j < n; j++)h += `<button class="cell${i == j ? " d" : ""}${S.M[i][j] ? " on" : ""}" id="b${i}_${j}" aria-label="${i + 1} a ${j + 1}" onclick="tog(${i},${j})">${S.M[i][j]}</button>` }
-  h += `</div></div><div id="gv">${grafo(S.M, null, "Grafo en tiempo real")}</div></div><div class="acts right"><button class="chip" style="background:var(--ros)" onclick="fin()">✓ Confirmar grafo</button></div>`;
+  h += `</div></div><div id="gv">${grafo(S.M, null, "Grafo en tiempo real")}</div></div><div class="acts right graph-confirm"><button class="chip" style="background:var(--ros)" onclick="fin()">✓ Confirmar grafo</button></div>`;
   add(h);
 }
 function tog(r, c) {
@@ -202,4 +230,5 @@ function vResultado() {
   titulo("⑥ RESULTADO FINAL"); log(`Proceso finalizado. Se encontraron ${r.comps.length} componente(s) conexa(s).`, "ok");
 }
 
+initTheme();
 go("nodos"); log("Bienvenido. Empieza eligiendo el número de nodos.", "m");
