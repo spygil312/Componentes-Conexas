@@ -13,7 +13,7 @@ El flujo de GitHub Actions la despliega al subir cambios a la rama `main`. En Gi
 ## Descargar para Windows
 
 Descarga el ejecutable desde la sección **Releases**:
-<https://github.com/spygil312/Componentes-Conexas/releases/tag/v1.0.0/download/Componentes_Conexas.exe>
+<https://github.com/spygil312/Componentes-Conexas/releases/download/v1.0.0/Componentes_Conexas.exe>
 
 Para publicar o actualizarlo, crea una Release en GitHub, adjunta `Componentes_Conexas.exe` y publícala. El archivo está excluido del repositorio mediante `.gitignore`; se puede adjuntar a la Release directamente desde GitHub.
 
