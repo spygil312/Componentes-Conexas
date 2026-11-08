@@ -6,7 +6,7 @@ Aplicación interactiva para construir grafos, consultar su matriz de adyacencia
 
 La página se publica con GitHub Pages desde la carpeta `HTML`:
 
-<https://spygil312.github.io/Componentes_Conexas/>
+<https://spygil312.github.io/Componentes-Conexas/>
 
 El flujo de GitHub Actions la despliega al subir cambios a la rama `main`. En GitHub, configura **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
