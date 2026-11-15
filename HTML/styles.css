@@ -377,8 +377,8 @@ button.cell.d:not(.on) {
 /* GRAFO */
 svg text {
   font: 600 13px "Segoe UI", system-ui, sans-serif;
+  pointer-events: none;
 }
-
 
 .g {
   display: block;
@@ -387,6 +387,15 @@ svg text {
   height: auto;
   aspect-ratio: 1 / 1;
   margin: 0 auto;
+  touch-action:  none;
+}
+
+.g circle[data-vertex] {
+  cursor: grab;
+}
+
+.g.is-dragging circle[data-vertex] {
+  cursor: grabbing;
 }
 
 /* RESULTADO FINAL */

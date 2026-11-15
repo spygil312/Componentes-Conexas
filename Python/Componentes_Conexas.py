@@ -468,9 +468,10 @@ class AppGrafos:
                 cnv.create_rectangle(x1, y1, x1 + celda, y1 + celda,
                                       fill=relleno, outline=BORDE)
 
-    def _dibujar_grafo(self, padre, colores=None, titulo="Representación gráfica"):
+    def _dibujar_grafo(self, padre, colores=None, titulo="Representación gráfica",
+                       tam=320):
         n = self.num_nodos
-        tam = 320
+        escala = tam / 320
 
         marco = tk.Frame(padre, bg=CARD)
         marco.pack(side="left")
@@ -481,49 +482,99 @@ class AppGrafos:
         cnv.pack()
 
         colores_nodo = colores or [V_MORADO, V_AZUL, V_MENTA, V_CORAL, V_ROSA]
-        posiciones = []
-
         if self.posiciones is None or len(self.posiciones) != n:
-            self.posiciones = posiciones_aleatorias(n, tam)
-        posiciones = self.posiciones
+            self.posiciones = posiciones_aleatorias(n, 320)
+        arrastre = {"indice": None, "offset_x": 0, "offset_y": 0}
 
-        for i in range(n):
-            for j in range(n):
-                if self.matriz[i][j] == 1:
-                    x1, y1 = posiciones[i]
-                    # bucle
-                    if i == j:
-                        cnv.create_line(x1 - 10, y1 - 13, x1 - 28, y1 - 42,
-                                        x1 + 28, y1 - 42, x1 + 10, y1 - 13,
-                                        smooth=True, fill=V_AZUL, width=2,
-                                        arrow=tk.LAST, arrowshape=(10, 12, 5))
-                        continue
-                    #conexión entre diferentes nodos
-                    x2, y2 = posiciones[j]
-                    dx, dy = x2 - x1, y2 - y1
-                    dist = math.hypot(dx, dy)
+        def redibujar():
+            cnv.delete("all")
+            posiciones = [
+                (tam / 2 + (x - 160) * escala, tam / 2 + (y - 160) * escala)
+                for x, y in self.posiciones
+            ]
 
-                    if dist > 0:
-                        ux = dx / dist
-                        uy = dy / dist
-                        x1_adj = x1 + ux * 16
-                        y1_adj = y1 + uy * 16
-                        x2_adj = x2 - ux * 16
-                        y2_adj = y2 - uy * 16
+            for i in range(n):
+                for j in range(n):
+                    if self.matriz[i][j] == 1:
+                        x1, y1 = posiciones[i]
+                        if i == j:
+                            cnv.create_line(x1 - 10 * escala, y1 - 13 * escala,
+                                            x1 - 28 * escala, y1 - 42 * escala,
+                                            x1 + 28 * escala, y1 - 42 * escala,
+                                            x1 + 10 * escala, y1 - 13 * escala,
+                                            smooth=True, fill=V_AZUL, width=2 * escala,
+                                            arrow=tk.LAST,
+                                            arrowshape=tuple(round(v * escala) for v in (10, 12, 5)))
+                            continue
+                        x2, y2 = posiciones[j]
+                        dx, dy = x2 - x1, y2 - y1
+                        dist = math.hypot(dx, dy)
 
-                        if self.matriz[j][i] == 1:
-                            nx, ny = -uy * 6, ux * 6
-                            x1_adj += nx
-                            y1_adj += ny
-                            x2_adj += nx
-                            y2_adj += ny
-                        cnv.create_line(x1_adj, y1_adj, x2_adj, y2_adj, fill=LAVANDA,
-                                        width=2, arrow=tk.LAST, arrowshape=(10, 12, 5))
+                        if dist > 0:
+                            ux = dx / dist
+                            uy = dy / dist
+                            x1_adj = x1 + ux * 16 * escala
+                            y1_adj = y1 + uy * 16 * escala
+                            x2_adj = x2 - ux * 16 * escala
+                            y2_adj = y2 - uy * 16 * escala
 
-        for i, (x, y) in enumerate(posiciones):
-            color = colores_nodo[i % len(colores_nodo)]
-            cnv.create_oval(x - 16, y - 16, x + 16, y + 16, fill=color, outline="")
-            cnv.create_text(x, y, text=str(i + 1), fill="#ffffff", font=FUENTE_BOLD)
+                            if self.matriz[j][i] == 1:
+                                nx, ny = -uy * 6 * escala, ux * 6 * escala
+                                x1_adj += nx
+                                y1_adj += ny
+                                x2_adj += nx
+                                y2_adj += ny
+                            cnv.create_line(x1_adj, y1_adj, x2_adj, y2_adj,
+                                            fill=LAVANDA, width=2 * escala,
+                                            arrow=tk.LAST,
+                                            arrowshape=tuple(round(v * escala) for v in (10, 12, 5)))
+
+            for i, (x, y) in enumerate(posiciones):
+                color = colores_nodo[i % len(colores_nodo)]
+                radio = 16 * escala
+                etiquetas = ("vertice", f"vertice-{i}")
+                cnv.create_oval(x - radio, y - radio, x + radio, y + radio,
+                                fill=color, outline="", tags=etiquetas)
+                cnv.create_text(x, y, text=str(i + 1), fill="#ffffff",
+                                font=("Segoe UI", round(10 * escala), "bold"),
+                                tags=etiquetas)
+
+        def iniciar_arrastre(evento):
+            x, y = cnv.canvasx(evento.x), cnv.canvasy(evento.y)
+            items = cnv.find_overlapping(x - 2, y - 2, x + 2, y + 2)
+            for item in reversed(items):
+                for etiqueta in cnv.gettags(item):
+                    if etiqueta.startswith("vertice-"):
+                        indice = int(etiqueta.split("-", 1)[1])
+                        nodo_x = tam / 2 + (self.posiciones[indice][0] - 160) * escala
+                        nodo_y = tam / 2 + (self.posiciones[indice][1] - 160) * escala
+                        arrastre["indice"] = indice
+                        arrastre["offset_x"] = x - nodo_x
+                        arrastre["offset_y"] = y - nodo_y
+                        cnv.config(cursor="fleur")
+                        return
+
+        def mover_nodo(evento):
+            indice = arrastre["indice"]
+            if indice is None:
+                return
+            radio = 16 * escala
+            x = max(radio, min(tam - radio, cnv.canvasx(evento.x) - arrastre["offset_x"]))
+            y = max(radio, min(tam - radio, cnv.canvasy(evento.y) - arrastre["offset_y"]))
+            self.posiciones[indice] = (
+                160 + (x - tam / 2) / escala,
+                160 + (y - tam / 2) / escala,
+            )
+            redibujar()
+
+        def terminar_arrastre(_evento):
+            arrastre["indice"] = None
+            cnv.config(cursor="")
+
+        cnv.bind("<ButtonPress-1>", iniciar_arrastre)
+        cnv.bind("<B1-Motion>", mover_nodo)
+        cnv.bind("<ButtonRelease-1>", terminar_arrastre)
+        redibujar()
 
     def _pintar_degradado(self, evento):
         lienzo = evento.widget
@@ -845,7 +896,12 @@ class AppGrafos:
         visual = tk.Frame(contenedor, bg=CARD)
         visual.pack(fill="both", expand=True, pady=(4, 0))
 
-        self._dibujar_grafo(visual, colores=self.res["color_nodo"], titulo="Grafo por componentes")
+        visual.update_idletasks()
+        tam_grafo = max(320, min(420, visual.winfo_width() - 300))
+        self._dibujar_grafo(
+            visual, colores=self.res["color_nodo"], titulo="Grafo por componentes",
+            tam=tam_grafo,
+        )
 
         lado = tk.Frame(visual, bg=CARD)
         lado.pack(side="left", fill="both", expand=True, padx=(20, 0))

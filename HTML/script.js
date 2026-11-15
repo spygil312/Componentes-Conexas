@@ -88,17 +88,69 @@ function grafo(M, col, tit = "Representación gráfica") {
   const cl = col || PAL;
   if (!S.pos || S.pos.length !== n) S.pos = posAleatorias(n, T);
   P.push(...S.pos);
-  let s = `<div><div class="cap">${tit}</div><svg class="g" viewBox="0 0 ${T} ${T}" role="img" aria-label="${tit}"><defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0L9,4.5L0,9z" fill="var(--lav)"/></marker></defs>`;
+  return `<div><div class="cap">${tit}</div><svg class="g" data-colors='${JSON.stringify(cl)}' viewBox="0 0 ${T} ${T}" role="img" aria-label="${tit}">${contenidoGrafo(M, cl, P, T)}</svg></div>`;
+}
+function contenidoGrafo(M, cl, P, T){
+  const n = M.length;
+  let s = `<defs><marker id="ar" markerWidth="5" markerHeight="5" refX="4" refY="2" orient="auto"><path d="M0,0L5,2L0,5z" fill="var(--lav)"/></marker></defs>`;
   for (let i = 0; i < n; i++)for (let j = 0; j < n; j++)if (M[i][j]) {
     const [x, y] = P[i];
     if (i == j) { s += `<path d="M${x - 8},${y - 14} C${x - 28},${y - 46} ${x + 28},${y - 46} ${x + 8},${y - 14}" fill="none" stroke="var(--azu)" stroke-width="2" marker-end="url(#ar)"/>`; continue }
-    const [x2, y2] = P[j], dx = x2 - x, dy = y2 - y, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d;
+    const [x2, y2] = P[j], dx = x2 - x, dy = y2 - y, d = Math.hypot(dx, dy), ux = d ? dx / d : 0, uy = d ? dy / d : 1;
     let a = x + ux * 17, b = y + uy * 17, c = x2 - ux * 19, e = y2 - uy * 19;
     if (M[j][i]) { const nx = -uy * 6, ny = ux * 6; a += nx; b += ny; c += nx; e += ny }
     s += `<line x1="${a}" y1="${b}" x2="${c}" y2="${e}" stroke="var(--lav)" stroke-width="2" marker-end="url(#ar)"/>`
   }
-  P.forEach(([x, y], i) => s += `<circle cx="${x}" cy="${y}" r="16" fill="${cl[i % cl.length]}"/><text x="${x}" y="${y + 4.5}" text-anchor="middle" fill="#fff">${i + 1}</text>`);
-  return s + "</svg></div>";
+  P.forEach(([x, y], i) => s += `<circle data-vertex="${i}" cx="${x}" cy="${y}" r="16" fill="${cl[i % cl.length]}"/><text x="${x}" y="${y + 4.5}" text-anchor="middle" fill="#fff">${i + 1}</text>`);
+  return s;
+}
+function initGraphDragging() {
+  let arrastre = null;
+  document.addEventListener("pointerdown", evento => {
+    const nodo = evento.target instanceof Element ? evento.target.closest("circle[data-vertex]") : null;
+    if (!nodo) return;
+    const svg = nodo.ownerSVGElement, indice = Number(nodo.dataset.vertex);
+    if (!svg || !Number.isInteger(indice)) return;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const punto = svg.createSVGPoint();
+    punto.x = evento.clientX;
+    punto.y = evento.clientY;
+    const cursor = punto.matrixTransform(ctm.inverse());
+    arrastre = {
+      svg,
+      indice,
+      pointerId: evento.pointerId,
+      colores: JSON.parse(svg.dataset.colors),
+      offsetX: S.pos[indice][0] - cursor.x,
+      offsetY: S.pos[indice][1] - cursor.y
+    };
+    svg.setPointerCapture(evento.pointerId);
+    svg.classList.add("is-dragging");
+    evento.preventDefault();
+  });
+  document.addEventListener("pointermove", evento => {
+    if (!arrastre || evento.pointerId !== arrastre.pointerId) return;
+    const { svg, indice, colores } = arrastre, matriz = svg.createSVGPoint();
+    matriz.x = evento.clientX;
+    matriz.y = evento.clientY;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const punto = matriz.matrixTransform(ctm.inverse());
+    const viewBox = svg.viewBox.baseVal;
+    const x = Math.max(viewBox.x + 16, Math.min(viewBox.x + viewBox.width - 16, punto.x + arrastre.offsetX));
+    const y = Math.max(viewBox.y + 16, Math.min(viewBox.y + viewBox.height - 16, punto.y + arrastre.offsetY));
+    S.pos[indice] = [x, y];
+    svg.innerHTML = contenidoGrafo(S.M, colores, S.pos, viewBox.width);
+  });
+  const terminarArrastre = evento => {
+    if (!arrastre || evento.pointerId !== arrastre.pointerId) return;
+    arrastre.svg.classList.remove("is-dragging");
+    arrastre = null;
+  };
+  document.addEventListener("pointerup", terminarArrastre);
+  document.addEventListener("pointercancel", terminarArrastre);
+  document.addEventListener("lostpointercapture", terminarArrastre);
 }
 
 /* ---------- Consola ---------- */
@@ -202,4 +254,5 @@ function vResultado() {
   titulo("⑥ RESULTADO FINAL"); log(`Proceso finalizado. Se encontraron ${r.comps.length} componente(s) conexa(s).`, "ok");
 }
 
+initGraphDragging();
 go("nodos"); log("Bienvenido. Empieza eligiendo el número de nodos.", "m");
